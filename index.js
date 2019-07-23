@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser')
 
+app.use(bodyParser.json())
 // we import express, which this time is a function
 // that is sued to create an express appliation stored in the 
 // app variable
@@ -31,7 +33,8 @@ app.get('/', (req, res) => {
 app.get('/notes', (req, res) => {
     res.json(notes)
     })
-
+// use the colon syntax here so we can refer to it in request under
+// params, making it easier to access for us to access
 app.get('/notes/:id', (request, response) => {
   const id = Number(request.params.id)
   console.log(id)
@@ -46,6 +49,57 @@ app.get('/notes/:id', (request, response) => {
       response.status(404).end() // end() llitterly ends the response process
   }
 })
+
+const generateId = () => {
+  const maxId = notes.length > 0
+    ? Math.max(...notes.map(n => n.id))
+    : 0
+  return maxId + 1
+}
+// in the second line of the code map creates a new array of just ids
+// using map we use max to find the max id and add 1 for the new id
+// this helps generate the max id !
+
+app.post('/notes', (request, response) => {
+  const body = request.body
+
+  if (!body.content) {
+    return response.status(400).json({ 
+      error: 'content missing' 
+    })
+  } // evaluate using truthy or falsey
+
+  const note = {
+    content: body.content,
+    important: body.important || false,
+    date: new Date(),
+    id: generateId(),
+  } // create a new note!
+  // how important is determined -> if there is a body.important then use it
+  // if not default automatiically to defautl
+  notes = notes.concat(note) // add note to notes
+
+  response.json(note)
+})
+
+
+// body parser take the json data of a requets and transforms it 
+// into a JS object and then attaches it to the body property of 
+// the request before the route handler is called
+
+
+app.delete('/notes/:id', (request, response) => {
+    const id = Number(request.params.id)
+    notes = notes.filter(note => note.id !== id)
+  
+    response.status(204).end()
+  })
+// if deleeting a resource is successful meaning that the note 
+// exists and it is removed, we respond to the equest with the 
+// status code 204 no contnent and return no data with the response
+// no consensus on what status code should be returned to a DELETE
+// request if the resource does not exist
+//downlaoded postman just o delete and it works! veyr convenient imo
 
 const PORT = 3001
 app.listen(PORT, () => {
@@ -69,3 +123,6 @@ app.listen(PORT, () => {
 // previously wusing only Node we had to transform the data
 // into teh JSON format with the JSON.stringify method
 
+// look into falsy and truthy
+// essentially truthy = value considered true when encountered
+// ina boolean context
