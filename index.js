@@ -113,10 +113,13 @@ app.delete('/notes/:id', (request, response) => {
 //downlaoded postman just o delete and it works! veyr convenient imo
 app.use(unknownEndpoint)
 
-const PORT = 3001
+
+// for this we can either us the port defined in env variable 
+// PORT or see if env variable port is undefined
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
-    })
+  console.log(`Server running on port ${PORT}`)
+})
 
 // above creates two routes to the appplicatio
 // first one handles http get requests made to teh app's root
