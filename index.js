@@ -1,15 +1,26 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
+const cors = require('cors')
 
+app.use(cors())
 app.use(bodyParser.json())
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
 // we import express, which this time is a function
 // that is sued to create an express appliation stored in the 
 // app variable
+//body parser is a so called middleware, functions used
+// to handle request and resposne objects.
+// middle ware can execute, make changes to the request
+// and response objects, end the request-response cycle
+// call the next middleware function in teh stack
 let notes = [  
     {    
         id: 1,    
-        content: "HTML is easy",    
+        content: "HTML is easypeasy",    
         date: "2019-05-30T17:30:31.098Z",    
         important: true  
     },  
@@ -100,6 +111,7 @@ app.delete('/notes/:id', (request, response) => {
 // no consensus on what status code should be returned to a DELETE
 // request if the resource does not exist
 //downlaoded postman just o delete and it works! veyr convenient imo
+app.use(unknownEndpoint)
 
 const PORT = 3001
 app.listen(PORT, () => {
@@ -126,3 +138,28 @@ app.listen(PORT, () => {
 // look into falsy and truthy
 // essentially truthy = value considered true when encountered
 // ina boolean context
+
+
+// http GET SHULD BE SAFE HOMIE/
+// safety means that executing requests must not cause any side
+// effects in the server. BY side-effects we mean that the state
+// of the database must not change as a result of the requets
+// and the response must only return DATA  that alrdy exists
+// on the server
+
+// there is laso a request type called HEAD working exactly like
+// GET but it does not reutnr naything but the status code
+// and response headers
+
+
+// all http requests except post should be idempotent
+// means that if a request has side-effects, then the reseult
+// should be the same regardless of many times the request is sent
+
+// what about delete?
+// The key bit there is the side-effects of N > 0 identical requests is the same as for a single request.
+
+//You would be correct to expect that the status code would be 
+//different but this does not affect the core concept of 
+//idempotency - you can send the request more than once without 
+//additional changes to the state of the server.
